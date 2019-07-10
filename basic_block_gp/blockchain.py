@@ -83,7 +83,7 @@ class Blockchain(object):
         """
 
         proof = 0
-        while self.valid_proof(last_proof, proof):
+        while self.valid_proof(last_proof, proof) is False:
             proof += 1
 
         return proof
@@ -119,9 +119,14 @@ class Blockchain(object):
             print("\n-------------------\n")
             # Check that the hash of the block is correct
             # TODO: Return false if hash isn't correct
+            if block['previous_hash'] != self.hash(last_block):
+                return False
 
             # Check that the Proof of Work is correct
             # TODO: Return false if proof isn't correct
+            if not self.valid_proof(last_block['proof'], block['proof']):
+                return False
+
 
             last_block = block
             current_index += 1
@@ -191,7 +196,9 @@ def new_transaction():
 def full_chain():
     response = {
         # TODO: Return the chain and its current length
-        'blockchain': blockchain.chain
+        'valid': blockchain.valid_chain(blockchain.chain),
+        'blockchain': blockchain.chain,
+        'length': len(blockchain.chain)
     }
     return jsonify(response), 200
 
