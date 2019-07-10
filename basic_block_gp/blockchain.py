@@ -188,6 +188,13 @@ def full_chain():
     }
     return jsonify(response), 200
 
+@app.route('/last_proof', methods=['GET'])
+def full_chain():
+    response = {
+       'last_proof': blockchain.last_block['proof'] 
+    }
+    return jsonify(response), 200
+
 
 # Run the program on port 5000
 if __name__ == '__main__':
