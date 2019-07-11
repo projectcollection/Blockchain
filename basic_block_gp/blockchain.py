@@ -136,7 +136,7 @@ def mine():
     # We run the proof of work algorithm to get the next proof...
     last_block = blockchain.last_block
     last_proof = last_block['proof']
-    proof_is_valid = blockchain.valid_proof(miner['proof'])
+    proof_is_valid = blockchain.valid_proof(last_proof, miner['proof'])
 
     response = {'message': 'Fail'}
 
@@ -185,7 +185,7 @@ def full_chain():
     return jsonify(response), 200
 
 @app.route('/last_proof', methods=['GET'])
-def full_chain():
+def return_proof():
     response = {
        'last_proof': blockchain.last_block['proof'] 
     }
