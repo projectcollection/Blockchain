@@ -52,6 +52,16 @@ class Blockchain(object):
         self.chain.append(block)
         return block
 
+    def broadcast_new_block(self, block):
+        nodes =  self.nodes
+        data = {'block': block}
+
+        for node in nodes:
+            res = requests.post(f'http://{node}/block/new', json=data)
+            
+            if res.status_code != 200:
+                print('something went wrong')
+
     def new_transaction(self, sender, recipient, amount):
         """
         Creates a new transaction to go into the next mined Block
