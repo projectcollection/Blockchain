@@ -229,6 +229,8 @@ def mine():
         previous_hash = blockchain.hash(last_block)
         block = blockchain.new_block(submitted_proof, previous_hash)
 
+        blockchain.broadcast_new_block(block)
+
         response = {
             'message': "New Block Forged",
             'index': block['index'],
@@ -243,6 +245,25 @@ def mine():
         }
         return jsonify(response), 200
 
+@app.route('/block/new', methods=['POST'])
+def new_block():
+    data = request.get_json()
+
+    if 'block' not in data:
+        return 'missing block', 400
+    
+    new_block = data['block']
+    last_block = blockchain.last_block
+
+    if new_block['index'] == last_block['index'] + 1:
+        if new_block['previous_hash'] == blockchain.hash(last_block) and blockchain.valid_proof(last_block['proof'], new_block['proof']):
+            blockchain.chain.append(new_block)
+            return 'block accepted', 200
+        else:
+            return 'invalid block, something wrong with previous_hash or proof', 400
+    else:
+        consensus()
+        return 'seeking concensus', 200
 
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
