@@ -16,7 +16,18 @@ class Blockchain(object):
         self.current_transactions = []
         self.nodes = set()
 
-        self.new_block(previous_hash=1, proof=100)
+        # self.new_block(previous_hash=1, proof=100)
+        self.chain.append(self.genesis())
+
+
+    def genesis(self):
+        return {
+            'index': 1,
+            'timestamp': 0,
+            'transaction': self.current_transactions,
+            'proof': 99,
+            'previous_hash': 1
+        }
 
     def new_block(self, proof, previous_hash=None):
         """
