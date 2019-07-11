@@ -84,7 +84,7 @@ class Blockchain(object):
         guess_string = f'{last_proof}{proof}'.encode()
         guess_hash = hashlib.sha256(guess_string).hexdigest()
 
-        return guess_hash[:4] == '000000'
+        return guess_hash[:6] == '000000'
         
 
     def valid_chain(self, chain):
