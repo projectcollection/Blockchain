@@ -24,7 +24,7 @@ class Blockchain(object):
         return {
             'index': 1,
             'timestamp': 0,
-            'transaction': self.current_transactions,
+            'transactions': [],
             'proof': 99,
             'previous_hash': 1
         }
@@ -255,13 +255,18 @@ def new_block():
     new_block = data['block']
     last_block = blockchain.last_block
 
+    print(new_block['index'] == last_block['index'] + 1)
     if new_block['index'] == last_block['index'] + 1:
-        if new_block['previous_hash'] == blockchain.hash(last_block) and blockchain.valid_proof(last_block['proof'], new_block['proof']):
+
+        print(new_block['previous_hash'] == blockchain.hash(last_block))
+        if new_block['previous_hash'] == blockchain.hash(last_block) :
             blockchain.chain.append(new_block)
+            print('APPENDED NEW BLOCK', blockchain.chain)
             return 'block accepted', 200
         else:
             return 'invalid block, something wrong with previous_hash or proof', 400
     else:
+        print('seeking consensus')
         consensus()
         return 'seeking concensus', 200
 
