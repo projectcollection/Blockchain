@@ -254,7 +254,7 @@ def mine():
         # We must receive a reward for finding the proof.
         # The sender is "0" to signify that this node has mine a new coin
         blockchain.new_transaction(
-            sender="0",
+            sender=values['id'],
             recipient=node_identifier,
             amount=1,
         )

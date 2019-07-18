@@ -16,7 +16,18 @@ class Blockchain(object):
         self.current_transactions = []
         self.nodes = set()
 
-        self.new_block(previous_hash=1, proof=100)
+        # self.new_block(previous_hash=1, proof=100)
+        self.chain.append(self.genesis())
+
+
+    def genesis(self):
+        return {
+            'index': 1,
+            'timestamp': 0,
+            'transactions': [],
+            'proof': 99,
+            'previous_hash': 1
+        }
 
     def new_block(self, proof, previous_hash=None):
         """
@@ -40,6 +51,16 @@ class Blockchain(object):
 
         self.chain.append(block)
         return block
+
+    def broadcast_new_block(self, block):
+        nodes =  self.nodes
+        data = {'block': block}
+
+        for node in nodes:
+            res = requests.post(f'http://{node}/block/new', json=data)
+            
+            if res.status_code != 200:
+                print('something went wrong')
 
     def new_transaction(self, sender, recipient, amount):
         """
@@ -208,6 +229,8 @@ def mine():
         previous_hash = blockchain.hash(last_block)
         block = blockchain.new_block(submitted_proof, previous_hash)
 
+        blockchain.broadcast_new_block(block)
+
         response = {
             'message': "New Block Forged",
             'index': block['index'],
@@ -222,6 +245,30 @@ def mine():
         }
         return jsonify(response), 200
 
+@app.route('/block/new', methods=['POST'])
+def new_block():
+    data = request.get_json()
+
+    if 'block' not in data:
+        return 'missing block', 400
+    
+    new_block = data['block']
+    last_block = blockchain.last_block
+
+    print(new_block['index'] == last_block['index'] + 1)
+    if new_block['index'] == last_block['index'] + 1:
+
+        print(new_block['previous_hash'] == blockchain.hash(last_block))
+        if new_block['previous_hash'] == blockchain.hash(last_block) :
+            blockchain.chain.append(new_block)
+            print('APPENDED NEW BLOCK', blockchain.chain)
+            return 'block accepted', 200
+        else:
+            return 'invalid block, something wrong with previous_hash or proof', 400
+    else:
+        print('seeking consensus')
+        consensus()
+        return 'seeking concensus', 200
 
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
